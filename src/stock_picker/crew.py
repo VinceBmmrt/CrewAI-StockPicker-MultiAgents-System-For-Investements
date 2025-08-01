@@ -144,11 +144,11 @@ class StockPicker():
                     #         "model": 'text-embedding-3-small'
                     #     }
                     # },
-                        embedder_config={
+                    embedder_config={
                             "provider": "google",
                             "config": {
-                                "api_key": os.getenv("GOOGLE_API_KEY"),
-                                "model": 'text-embedding-004'
+                            "api_key": os.getenv("GOOGLE_API_KEY")  ,
+                            "model": "text-embedding-004" 
                             }
                         },
                     type="short_term",
