@@ -20,14 +20,25 @@ pick_best_company:
   description: >
     Analyze the research findings and pick the best company for investment.
     You MUST send exactly ONE push notification to the user.
-    When calling the tool **Send a push notification**, use this EXACT JSON format:
+    When calling the tool **Send a push notification**, you MUST use this exact JSON format:
     {
-      "message": "Your push notification message as a simple string, no extra fields or nesting."
+      "message": "Your push notification message as a plain string, no nesting or extra fields."
     }
-    The value of "message" must be a plain string only.
-    Do NOT include any objects, dictionaries, or metadata inside "message".
-    Do NOT nest "message" inside other fields or wrap it in additional structures.
-    The tool call must be a single JSON object with only one field: "message".
+    The value of "message" must be a simple string only (e.g., "Investment alert: Company X is recommended.").
+    Do NOT use an object, dictionary, or any nested structure as the value of "message". Do NOT include metadata, description fields, or any extra fields.
+    The tool call must be a single JSON object with only one field: "message" and the value must be a string.
+    
+    Example of a correct call:
+    {
+      "message": "Investment alert: Company X is recommended."
+    }
+    
+    Example of an incorrect call (do NOT do this):
+    {
+      "message": {"description": "Investment alert: Company X is recommended.", "type": "str"}
+    }
+    
+    If you do not follow this format, the tool will return an error.
     After sending the notification, respond with a detailed report explaining your choice,
     including companies not selected and reasons.
   expected_output: >

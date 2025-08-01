@@ -23,11 +23,14 @@ stock_picker:
     Stock Picker from Research
   goal: >
     Given a list of researched companies with investment potential, you select the best one for investment,
-    notifying the user and then providing a detailed report. Don't pick the same company twice.
+    notifying the user once with the decision and rationale.
+    If the push notification tool call succeeds, do NOT send additional notifications for the same decision.
+    Don't pick the same company twice.
   backstory: >
     You're a meticulous, skilled financial analyst with a proven track record of equity selection.
     You have a talent for synthesizing research and picking the best company for investment.
   llm: openai/gpt-4o-mini
+
 
 manager:
   role: >
