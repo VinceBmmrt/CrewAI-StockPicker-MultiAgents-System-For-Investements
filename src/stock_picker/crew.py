@@ -1,3 +1,4 @@
+import os
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
@@ -5,6 +6,10 @@ from typing import List
 from pydantic import BaseModel, Field
 from crewai_tools import SerperDevTool
 from .tools.push_tool import PushNotificationTool
+from crewai.memory import LongTermMemory, ShortTermMemory, EntityMemory
+from crewai.memory.storage.rag_storage import RAGStorage
+from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
+
 class TrendingCompany(BaseModel):
     """A Company that is currently trending and has potential for stock picking."""
     name: str = Field(description="Name of the trending company")
@@ -43,7 +48,7 @@ class StockPicker():
             verbose=True,
             tools=[
                 SerperDevTool()
-            ]
+            ],
         )
     
     @agent
@@ -79,7 +84,6 @@ class StockPicker():
         return Task(
             config=self.tasks_config['research_trending_companies'], # type: ignore[index]
             output_pydantic=TrendingCompanyResearchList,
-
         )
     
     @task
@@ -94,10 +98,9 @@ class StockPicker():
         manager = Agent(
             config=self.agents_config['manager'], # type: ignore[index]
             allow_delegation=True
-           
         )
         
-
+    
         return Crew(
             agents=self.agents, # Automatically created by the @agent decorator
             tasks=self.tasks, # Automatically created by the @task decorator
@@ -105,5 +108,51 @@ class StockPicker():
             verbose=True,
             manager_agent=manager,
             manager_llm="gpt-4o",
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            memory=True,
+            # Short-term memory for current context using RAG
+            short_term_memory = ShortTermMemory(
+                storage = RAGStorage(
+                        # embedder_config={
+                        #     "provider": "openai",
+                        #     "config": {
+                        #         "model": 'text-embedding-3-small'
+                        #     }
+                        # },
+                        embedder_config={
+                            "provider": "google",
+                            "config": {
+                                "api_key": os.getenv("GOOGLE_API_KEY"),
+                                "model": 'text-embedding-004'
+                            }
+                        },
+                        type="short_term",
+                        path="./memory/"
+                    )
+                ),
+            # Long-term memory for persistent storage across sessions
+            long_term_memory = LongTermMemory(
+                storage=LTMSQLiteStorage(
+                    db_path="./memory/long_term_memory_storage.db"
+                )
+            ),                
+            # Entity memory for tracking key information about entities
+            entity_memory = EntityMemory(
+                storage=RAGStorage(
+                    # embedder_config={
+                    #     "provider": "openai",
+                    #     "config": {
+                    #         "model": 'text-embedding-3-small'
+                    #     }
+                    # },
+                        embedder_config={
+                            "provider": "google",
+                            "config": {
+                                "api_key": os.getenv("GOOGLE_API_KEY"),
+                                "model": 'text-embedding-004'
+                            }
+                        },
+                    type="short_term",
+                    path="./memory/"
+                )
+            ),
         )

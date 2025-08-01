@@ -3,4 +3,5 @@
 __pycache__/
 .DS_Store
 /output/
-
+/memory/
+chromadb-e28dd915c78e1b7c2dcc4c9dc1053169.lock
