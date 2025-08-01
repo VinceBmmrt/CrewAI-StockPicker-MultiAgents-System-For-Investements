@@ -4,7 +4,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
 from pydantic import BaseModel, Field
 from crewai_tools import SerperDevTool
-
+from .tools.push_tool import PushNotificationTool
 class TrendingCompany(BaseModel):
     """A Company that is currently trending and has potential for stock picking."""
     name: str = Field(description="Name of the trending company")
@@ -46,6 +46,7 @@ class StockPicker():
             ]
         )
     
+    @agent
     def financial_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['financial_researcher'], # type: ignore[index]
@@ -60,6 +61,9 @@ class StockPicker():
         return Agent(
             config=self.agents_config['stock_picker'], # type: ignore[index]
             verbose=True,
+            tools=[
+                PushNotificationTool()
+            ]
         )
 
 
@@ -100,5 +104,6 @@ class StockPicker():
             process=Process.hierarchical,
             verbose=True,
             manager_agent=manager,
+            manager_llm="gpt-4o",
             # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )

@@ -1,19 +1,16 @@
 find_trending_companies:
   description: >
-    Search the latest financial news related to the {sector} sector to identify trending companies currently trending. 
-    Ensure these are companies that have not been previously selected to maintain novelty in recommendations.
+    Find the top trending companies in the news in {sector} by searching the latest news. Find new companies that you've not found before.
   expected_output: >
-    A  list of trending companies in the {sector}, each represented by their name and a short explanation of why they are trending.
+    A list of trending companies in {sector}
   agent: trending_company_finder
   output_file: output/trending_companies.json
 
 research_trending_companies:
   description: >
-    For each trending company identified, perform an in-depth online investigation. 
-    Analyze their recent performance, news, strategic moves, and future prospects. 
-    Summarize your findings in a clear, well-structured report.
+    Given a list of trending companies, provide detailed analysis of each company in a report by searching online
   expected_output: >
-    A structured report with detailed analysis for each company, including financial performance, news highlights, strengths, weaknesses, and growth outlook.
+    A report containing detailed analysis of each company
   agent: financial_researcher
   context:
     - find_trending_companies
@@ -21,15 +18,22 @@ research_trending_companies:
 
 pick_best_company:
   description: >
-    Review the research and select the single most promising company for investment.  
-    Send a push notification message to the user with a one-line rationale sentence.
-    Then justify your selection in a detailed report and explain why other companies were not selected
+    Analyze the research findings and pick the best company for investment.
+    You MUST send exactly ONE push notification to the user.
+    When calling the tool **Send a push notification**, use this EXACT JSON format:
+    {
+      "message": "Your push notification message as a simple string, no extra fields or nesting."
+    }
+    The value of "message" must be a plain string only.
+    Do NOT include any objects, dictionaries, or metadata inside "message".
+    Do NOT nest "message" inside other fields or wrap it in additional structures.
+    The tool call must be a single JSON object with only one field: "message".
+    After sending the notification, respond with a detailed report explaining your choice,
+    including companies not selected and reasons.
   expected_output: >
-    A report including:
-    - The chosen company and a clear rationale
-    - A summary of why other companies were excluded
-    - The message sent via push notification
+    The chosen company and why it was chosen; companies not selected and reasons.
   agent: stock_picker
   context:
     - research_trending_companies
   output_file: output/decision.md
+
